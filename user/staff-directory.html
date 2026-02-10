@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Directory - Campus Navigation System</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .staff-directory-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding-bottom: 3rem;
+            overflow-x: hidden;
+        }
+
+        .staff-directory-header {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content-staff {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-to-home {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-to-home:hover {
+            color: #764ba2;
+            transform: translateX(-5px);
+        }
+
+        .directory-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .staff-directory-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .stats-bar {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.faculty {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-icon.rooms {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .stat-icon.departments {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+            max-height: calc(100vh - 500px);
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        .staff-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .staff-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .staff-grid::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        .staff-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+
+        .staff-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .staff-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .staff-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .staff-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .staff-designation {
+            font-size: 1rem;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .staff-card-body {
+            padding: 1.5rem;
+        }
+
+        .staff-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .staff-info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-icon {
+            color: #667eea;
+            font-size: 1.1rem;
+            min-width: 25px;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .room-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .room-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .specialization-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .no-results {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            color: #212529;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results p {
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .staff-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="staff-directory-page">
+        <!-- Header -->
+        <div class="staff-directory-header">
+            <div class="header-content-staff">
+                <h1 class="directory-title">
+                    <i class="fas fa-users"></i>
+                    Staff Directory
+                </h1>
+                <a href="index.html" class="back-to-home">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div class="staff-directory-container">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label class="filter-label">Search Staff</label>
+                        <input type="text" id="staffSearch" class="filter-input" placeholder="Search by name, designation, or specialization..." oninput="filterStaff()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Filter by Department</label>
+                        <select id="departmentFilter" class="filter-select" onchange="filterStaff()">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Filter by Designation</label>
+                        <select id="designationFilter" class="filter-select" onchange="filterStaff()">
+                            <option value="">All Designations</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-icon faculty">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stat-details">
+                        <div class="stat-number" id="totalStaff">0</div>
+                        <div class="stat-label">Total Staff</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon rooms">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="stat-details">
+                        <div class="stat-number" id="totalRooms">0</div>
+                        <div class="stat-label">Total Rooms</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon departments">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-details">
+                        <div class="stat-number" id="totalDepartments">0</div>
+                        <div class="stat-label">Departments</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Grid -->
+            <div id="staffGrid" class="staff-grid">
+                <!-- Staff cards will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let allStaffData = [];
+
+        // Initialize staff directory
+        function initStaffDirectory() {
+            // Extract all faculty members from ROOM_DATABASE
+            const staffMap = new Map();
+            const departments = new Set();
+            const designations = new Set();
+
+            ROOM_DATABASE.forEach(room => {
+                room.faculty.forEach(faculty => {
+                    const key = `${faculty.name}-${faculty.department}`;
+                    
+                    if (!staffMap.has(key)) {
+                        staffMap.set(key, {
+                            name: faculty.name,
+                            designation: faculty.designation,
+                            department: faculty.department,
+                            specialization: faculty.specialization,
+                            phone: faculty.phone || '',
+                            email: faculty.email || '',
+                            rooms: []
+                        });
+                    }
+                    
+                    staffMap.get(key).rooms.push({
+                        roomName: room.roomName,
+                        roomCode: room.roomCode,
+                        type: room.type
+                    });
+
+                    departments.add(faculty.department);
+                    designations.add(faculty.designation);
+                });
+            });
+
+            allStaffData = Array.from(staffMap.values());
+
+            // Populate filter dropdowns
+            const departmentFilter = document.getElementById('departmentFilter');
+            const designationFilter = document.getElementById('designationFilter');
+
+            Array.from(departments).sort().forEach(dept => {
+                departmentFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
+            });
+
+            Array.from(designations).sort().forEach(desig => {
+                designationFilter.innerHTML += `<option value="${desig}">${desig}</option>`;
+            });
+
+            // Update statistics
+            document.getElementById('totalStaff').textContent = allStaffData.length;
+            document.getElementById('totalRooms').textContent = ROOM_DATABASE.length;
+            document.getElementById('totalDepartments').textContent = departments.size;
+
+            // Display all staff
+            displayStaff(allStaffData);
+        }
+
+        // Display staff cards
+        function displayStaff(staffList) {
+            const staffGrid = document.getElementById('staffGrid');
+
+            if (staffList.length === 0) {
+                staffGrid.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <i class="fas fa-search"></i>
+                        <h3>No Staff Found</h3>
+                        <p>Try adjusting your filters or search criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            staffGrid.innerHTML = staffList.map(staff => {
+                const roomsList = staff.rooms.map(room => 
+                    `<div><a href="#" class="room-link" onclick="navigateToRoomFromDirectory('${room.roomCode}'); return false;">${room.roomName} (${room.type})</a></div>`
+                ).join('');
+
+                return `
+                    <div class="staff-card">
+                        <div class="staff-card-header">
+                            <div class="staff-name">
+                                <i class="fas fa-user-circle"></i>
+                                ${staff.name}
+                            </div>
+                            <div class="staff-designation">
+                                <i class="fas fa-briefcase"></i>
+                                ${staff.designation}
+                            </div>
+                        </div>
+                        <div class="staff-card-body">
+                            <div class="staff-info-row">
+                                <i class="fas fa-building info-icon"></i>
+                                <div class="info-content">
+                                    <div class="info-label">Department</div>
+                                    <div class="info-value">${staff.department}</div>
+                                </div>
+                            </div>
+                            ${staff.phone ? `
+                                <div class="staff-info-row">
+                                    <i class="fas fa-phone info-icon"></i>
+                                    <div class="info-content">
+                                        <div class="info-label">Phone</div>
+                                        <div class="info-value">
+                                            <a href="tel:${staff.phone.replace(/[^0-9+]/g, '')}" style="color: #212529; text-decoration: none;">${staff.phone}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${staff.email ? `
+                                <div class="staff-info-row">
+                                    <i class="fas fa-envelope info-icon"></i>
+                                    <div class="info-content">
+                                        <div class="info-label">Email</div>
+                                        <div class="info-value">
+                                            <a href="mailto:${staff.email}" class="room-link">${staff.email}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${staff.specialization ? `
+                                <div class="staff-info-row">
+                                    <i class="fas fa-award info-icon"></i>
+                                    <div class="info-content">
+                                        <div class="info-label">Specialization</div>
+                                        <div class="info-value">
+                                            <span class="specialization-badge">${staff.specialization}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            <div class="staff-info-row">
+                                <i class="fas fa-door-open info-icon"></i>
+                                <div class="info-content">
+                                    <div class="info-label">Room(s) - ${staff.rooms.length}</div>
+                                    <div class="info-value">
+                                        ${roomsList}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter staff based on search and filters
+        function filterStaff() {
+            const searchTerm = document.getElementById('staffSearch').value.toLowerCase();
+            const departmentFilter = document.getElementById('departmentFilter').value;
+            const designationFilter = document.getElementById('designationFilter').value;
+
+            const filtered = allStaffData.filter(staff => {
+                const matchesSearch = 
+                    staff.name.toLowerCase().includes(searchTerm) ||
+                    staff.designation.toLowerCase().includes(searchTerm) ||
+                    staff.department.toLowerCase().includes(searchTerm) ||
+                    (staff.specialization && staff.specialization.toLowerCase().includes(searchTerm));
+
+                const matchesDepartment = !departmentFilter || staff.department === departmentFilter;
+                const matchesDesignation = !designationFilter || staff.designation === designationFilter;
+
+                return matchesSearch && matchesDepartment && matchesDesignation;
+            });
+
+            displayStaff(filtered);
+        }
+
+        // Navigate to room from directory
+        function navigateToRoomFromDirectory(roomCode) {
+            // Store the room code in session storage
+            sessionStorage.setItem('navigateToRoom', roomCode);
+            // Redirect to home page
+            window.location.href = 'index.html';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initStaffDirectory();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Campus Navigation System</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- ============================================ -->
+    <!-- HOME PAGE SLIDE - Destination Selection     -->
+    <!-- ============================================ -->
+    <div id="destinationSlide" class="destination-slide" data-page="home">
+        <!-- Header -->
+        <header class="campus-header">
+            <div class="header-content">
+                <div class="brand">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span class="brand-name">CampusNav</span>
+                </div>
+                <nav class="header-nav">
+                    <a href="#">Campus Map</a>
+                    <a href="staff-directory.html">Staff Directory</a>
+                    <a href="#">Help</a>
+                    <button class="sign-in-btn" onclick="enterMapWithoutDestination()">Enter Map</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="hero-section">
+            <h1 class="hero-title">Find Your Way Around Campus</h1>
+            <p class="hero-subtitle">Search for saved destinations or enter the map to set your route and get instant turn-by-turn directions.</p>
+            
+            <!-- Quick Find Section -->
+            <div class="quick-find-section">
+                <h3 class="section-title">Quick Find</h3>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <input type="text" id="roomSearchInput" class="search-input" placeholder="Search for rooms, departments, or facilities..." />
+                    <button class="search-btn" onclick="searchRooms()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                
+                <p class="dropdown-label">Or select a faculty to view departments:</p>
+                
+                <!-- Faculty Selection Dropdown -->
+                <div class="faculty-dropdown-container">
+                    <select id="facultySelect" class="destination-select" onchange="loadDepartments()" title="Select a faculty">
+                        <option value="">Select a faculty...</option>
+                        <option value="Science">Faculty of Science</option>
+                        <option value="Arts">Faculty of Arts</option>
+                        <option value="Engineering">Faculty of Engineering</option>
+                        <option value="Commerce">Faculty of Commerce</option>
+                        <option value="Technology">Faculty of Technology</option>
+                    </select>
+                </div>
+                
+                <!-- Department Selection Dropdown -->
+                <div class="department-dropdown-container" id="departmentContainer" style="display: none;">
+                    <p class="dropdown-label">Select a department:</p>
+                    <select id="facultyDropdown" class="destination-select" onchange="loadFacultyRooms()" title="Select a department">
+                        <option value="">Select a department...</option>
+                    </select>
+                </div>
+                
+                <!-- Room Cards Display -->
+                <div id="roomCardsContainer" class="room-cards-container" style="display: none;">
+                    <div id="roomCards" class="room-cards">
+                        <!-- Room cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <button class="enter-map-secondary" onclick="enterMapWithoutDestination()">
+                <i class="fas fa-map"></i> Enter Map Without Destination
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MAP PAGE - Navigation Interface             -->
+    <!-- ============================================ -->
+    <div id="mapContainer" class="main-container" data-page="map" style="display: none;">
+        <!-- Destination Info Bar -->
+        <div id="destinationInfoBar" class="destination-info-bar" style="display: none;">
+            <div class="destination-info-content">
+                <i class="fas fa-map-marker-alt"></i>
+                <div class="destination-info-text">
+                    <div id="destinationInfoName" class="destination-info-name">-</div>
+                    <div id="destinationInfoDetails" class="destination-info-details"></div>
+                </div>
+                <button class="clear-destination-btn" onclick="clearCurrentDestination()" title="Clear destination">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Grid (Left Side) -->
+        <div class="grid-container">
+            <canvas id="gridCanvas" width="1481" height="722"></canvas>
+        </div>
+
+        <!-- Controls (Right Side) -->
+        <div class="controls">
+            <h1>Campus Navigation System</h1>
+            <div class="control-columns">
+                <div class="column">
+                    <button onclick="setMode('destination')">🏁 Set Destination</button>
+                    <button onclick="showSaveDestinationDialog()">💾 Save Destination</button>
+                    <div class="destination-dropdown">
+                        <button class="dropdown-toggle" onclick="toggleDestinationDropdown()">📍 Saved Destinations</button>
+                        <div class="dropdown-menu" id="destinationDropdown">
+                            <!-- Saved destinations will be populated here -->
+                        </div>
+                    </div>
+                    <button onclick="setMode('obstacle')">🌋 Set Obstacle</button>
+                    <div id="obstacleInstructions" class="instructions hidden">
+                        <small>💡 Left click: place single obstacle<br>Right click + drag: brush obstacles</small>
+                    </div>
+                    <button onclick="setMode('multiSelect')">🔄 Multi-Select Obstacles</button>
+                    <button onclick="completePolygonAndFill()" id="completePolygonBtn" class="hidden">✅ Complete Polygon</button>
+                    <button onclick="setMode('constrainArea')">🎯 Constrain Path Area</button>
+                    <button onclick="completeConstraintArea()" id="completeConstraintBtn" class="hidden">✅ Complete Area</button>
+                    <div id="constraintInstructions" class="instructions hidden">
+                        <small>💡 Click to draw polygon area<br>Path will only travel through this area</small>
+                    </div>
+                    <button onclick="clearConstraintArea()">🗑️ Clear Constraint Area</button>
+                    <button onclick="toggleObstaclesVisibility()">👁️ Toggle Obstacles</button>
+                    <button onclick="generateObstacles()">🎲 Generate Obstacles</button>
+
+                </div>
+                <div class="column">
+                    <button onclick="setMode('remove')">❌ Remove</button>
+                    <button onclick="setMode('fixedPath')">🛣️ Set Fixed Path</button>
+                    <button onclick="findPath()">🧭 Find Path</button>
+                    <button onclick="clearGrid()">🧹 Clear Grid</button>
+                    <button onclick="replayPaths()">▶️ Replay Path</button>
+                    <button onclick="loadGrid()">📂 Load</button>
+                    <button onclick="toggleReturnPath()" id="toggleReturnPath">🔁 Show Return Path</button>
+                    <button onclick="saveGrid()">💾 Save</button>
+                    <input type="file" id="loadInput" title="Load grid file" accept=".json" onchange="handleLoad(event)" />
+                </div>
+            </div>
+
+            <label>
+                <input type="checkbox" id="allowDiagonal" checked />
+                🔄 Allow Diagonal Movement
+            </label>
+
+            <p>🚢 Sources: <span id="sourceCount">0</span></p>
+            <p>🏁 Destinations: <span id="destinationCount">0</span></p>
+            <p>🪨 Obstacles: <span id="obstacleCount">0</span></p>
+            <p>📍 Paths: <span id="pathCount">0</span></p><br>
+
+            <p>Path Cost: <span id="pathCost">0</span></p>
+
+
+        </div>
+    </div>
+    </div>
+
+    <!-- Save Destination Modal -->
+    <div id="saveDestinationModal" class="modal">
+        <div class="modal-content">
+            <h3>Save Current Destination</h3>
+            <p>Enter a name for this destination:</p>
+            <input type="text" id="destinationName" placeholder="e.g., Main Port, Harbor A" />
+            <div class="modal-buttons">
+                <button onclick="saveDestination()">Save</button>
+                <button onclick="closeSaveDestinationDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="roomSearch.js"></script>
+    <script>
+        // Admin Navbar JavaScript
+
+        // Actions Dropdown Toggle
+        const actionsDropdownBtn = document.getElementById('actionsDropdownBtn');
+        const actionsDropdownContent = document.getElementById('actionsDropdownContent');
+        const adminActionsDropdown = document.getElementById('adminActionsDropdown');
+
+        actionsDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adminActionsDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!adminActionsDropdown.contains(e.target)) {
+                adminActionsDropdown.classList.remove('active');
+            }
+        });
+
+        // Admin Path Set Button
+        document.getElementById('adminPathSetBtn').addEventListener('click', () => {
+            // Open admin path set page in the same tab
+            window.location.href = '../admin path set/index.html';
+        });
+
+        // Admin Logout
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout from Admin Panel?')) {
+                // Clear stored user data
+                localStorage.removeItem('userDisplayName');
+                console.log('Admin logged out');
+                window.location.href = '../login/index.html';
+            }
+        });
+
+        // Set admin display name
+        const storedDisplayName = localStorage.getItem('userDisplayName');
+        const adminNameElement = document.getElementById('adminDisplayName');
+        if (storedDisplayName && storedDisplayName.includes('Admin')) {
+            // Extract just the username part from "Admin - username"
+            const username = storedDisplayName.replace('Admin - ', '');
+            adminNameElement.textContent = username;
+        } else {
+            adminNameElement.textContent = 'Agam';
+        }
+    </script>
+</body>
+
+</html>
