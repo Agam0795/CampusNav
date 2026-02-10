@@ -540,7 +540,7 @@ class PathfindingApp {
         this.totalCostWithReturn = 0;
 
         document.getElementById("toggleReturnPath").disabled = true;
-        document.getElementById("toggleReturnPath").classList.remove("active");
+        const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
         this.updateUI();
 
         // Set the fixed starting point on the grid (ensure it's available)
@@ -1136,7 +1136,7 @@ class PathfindingApp {
         this.totalPathCost = 0;
         this.totalCostWithReturn = 0;
         this.isReturnPathVisible = false;
-        document.getElementById("toggleReturnPath").classList.remove("active");
+        const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
 
         // Create one continuous path through all destinations
         if (this.destinations.length === 1) {
@@ -1496,14 +1496,14 @@ class PathfindingApp {
                 this.weatherEffect = data.weatherEffect || "none";
 
                 // Update UI elements
-                document.getElementById("gridSize").value = this.gridSize;
-                document.getElementById("weather").value = this.weatherEffect;
+                (document.getElementById("gridSize") || {}).value = this.gridSize;
+                (document.getElementById("weather") || {}).value = this.weatherEffect;
 
                 // Clear any existing paths since we're loading a new grid
                 this.paths = [];
                 this.returnPath = null;
                 this.isReturnPathVisible = false;
-                document.getElementById("toggleReturnPath").classList.remove("active");
+                const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
 
                 this.updateUI();
                 this.drawGrid();
@@ -1820,7 +1820,7 @@ class PathfindingApp {
         this.totalCostWithReturn = 0;
 
         document.getElementById("toggleReturnPath").disabled = true;
-        document.getElementById("toggleReturnPath").classList.remove("active");
+        const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
         this.updateUI();
 
         // Set the fixed starting point on the grid (ensure it's available)
@@ -2416,7 +2416,7 @@ class PathfindingApp {
         this.totalPathCost = 0;
         this.totalCostWithReturn = 0;
         this.isReturnPathVisible = false;
-        document.getElementById("toggleReturnPath").classList.remove("active");
+        const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
 
         // Create one continuous path through all destinations
         if (this.destinations.length === 1) {
@@ -2776,14 +2776,14 @@ class PathfindingApp {
                 this.weatherEffect = data.weatherEffect || "none";
 
                 // Update UI elements
-                document.getElementById("gridSize").value = this.gridSize;
-                document.getElementById("weather").value = this.weatherEffect;
+                (document.getElementById("gridSize") || {}).value = this.gridSize;
+                (document.getElementById("weather") || {}).value = this.weatherEffect;
 
                 // Clear any existing paths since we're loading a new grid
                 this.paths = [];
                 this.returnPath = null;
                 this.isReturnPathVisible = false;
-                document.getElementById("toggleReturnPath").classList.remove("active");
+                const toggleEl = document.getElementById("toggleReturnPath"); if (toggleEl) toggleEl.classList.remove("active");
 
                 this.updateUI();
                 this.drawGrid();
