@@ -299,6 +299,19 @@ const STAFF_DIRECTORY = [
 // Merge STAFF_DIRECTORY into ROOM_DATABASE
 ROOM_DATABASE.push(...STAFF_DIRECTORY);
 
+// DEFAULT SAVED DESTINATIONS - These will be loaded when localStorage is empty
+// Export your local data using the "Export Data" button and paste the savedDestinations array here
+const DEFAULT_SAVED_DESTINATIONS = [
+    // Paste exported savedDestinations here for permanent deployment data
+    // Example format:
+    // {
+    //     "name": "C LAB",
+    //     "destinations": [{ "row": 100, "col": 200 }],
+    //     "timestamp": "2026-02-11T00:00:00.000Z",
+    //     "roomCode": "CLAB"
+    // }
+];
+
 const WEATHER_CONFIG = {
     none: { impact: 0, name: "Calm Seas" },
     rain: { impact: 2, name: "Rainy" },
@@ -1515,7 +1528,15 @@ class PathfindingApp {
     // Destination Management Methods
     loadSavedDestinations() {
         const saved = localStorage.getItem('pathfindingDestinations');
-        return saved ? JSON.parse(saved) : [];
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        // If localStorage is empty, use default destinations (for deployment)
+        if (typeof DEFAULT_SAVED_DESTINATIONS !== 'undefined' && DEFAULT_SAVED_DESTINATIONS.length > 0) {
+            localStorage.setItem('pathfindingDestinations', JSON.stringify(DEFAULT_SAVED_DESTINATIONS));
+            return [...DEFAULT_SAVED_DESTINATIONS];
+        }
+        return [];
     }
 
     saveSavedDestinations() {
@@ -2787,7 +2808,15 @@ class PathfindingApp {
     // Destination Management Methods
     loadSavedDestinations() {
         const saved = localStorage.getItem('pathfindingDestinations');
-        return saved ? JSON.parse(saved) : [];
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        // If localStorage is empty, use default destinations (for deployment)
+        if (typeof DEFAULT_SAVED_DESTINATIONS !== 'undefined' && DEFAULT_SAVED_DESTINATIONS.length > 0) {
+            localStorage.setItem('pathfindingDestinations', JSON.stringify(DEFAULT_SAVED_DESTINATIONS));
+            return [...DEFAULT_SAVED_DESTINATIONS];
+        }
+        return [];
     }
 
     saveSavedDestinations() {
@@ -2970,6 +2999,31 @@ document.addEventListener("DOMContentLoaded", () => {
     window.handleLoad = (e) => app.handleLoad(e);
     window.updateWeather = () => app.updateWeather();
     window.toggleObstaclesVisibility = () => app.toggleObstaclesVisibility();
+    
+    // Export all data function for deployment
+    window.exportAllData = () => {
+        const exportData = {
+            savedDestinations: app.savedDestinations,
+            timestamp: new Date().toISOString(),
+            note: "Copy this data to DEFAULT_SAVED_DESTINATIONS in script.js for deployment"
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'campusnav-export-data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        // Also log to console for easy copy
+        console.log('=== EXPORTED DATA ===');
+        console.log('Copy this array content to DEFAULT_SAVED_DESTINATIONS:');
+        console.log(JSON.stringify(app.savedDestinations, null, 2));
+        
+        alert('Data exported! Check your downloads folder for campusnav-export-data.json\\n\\nTo make this permanent:\\n1. Copy the savedDestinations array from the file\\n2. Paste it into DEFAULT_SAVED_DESTINATIONS in script.js');
+    };
 
     // Destination management functions
     window.showSaveDestinationDialog = () => app.showSaveDestinationDialog();
